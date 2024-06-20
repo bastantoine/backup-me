@@ -32,7 +32,9 @@ jobs:
         with:
           filename: report.xml
           format: markdown
-          indicators: true
+          indicators: false
+          hide_branch_rate: true
+          hide_complexity: true
           output: both
       - name: Write summary
         run: |
