@@ -25,6 +25,18 @@ jobs:
       - name: Test with pytest
         run: |
           poetry run coverage run -m pytest -v -s
-      - name: Generate Coverage Report
+      - name: Generate coverage report
         run: |
           poetry run coverage report -m
+      - name: Export coverage report
+        run: |
+          poetry run coverage xml -o report.xml
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: report.xml
+          format: markdown
+          indicators: true
+          output: both
+      - name: Write summary
+        run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
