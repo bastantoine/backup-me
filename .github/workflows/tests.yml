@@ -39,4 +39,7 @@ jobs:
           indicators: true
           output: both
       - name: Write summary
-        run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+        run: |
+          echo '### Test coverage report' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
