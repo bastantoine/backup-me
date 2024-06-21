@@ -1,11 +1,13 @@
 import json
 
+import typer
+
 from backup_me.backup import Backup
 from backup_me.config import Config
 
 
-def main():
-    with open("./config.json") as f:
+def main(config_file: str):
+    with open(config_file) as f:
         config = Config(json.load(f))
 
     backup = Backup(config)
@@ -13,4 +15,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)
