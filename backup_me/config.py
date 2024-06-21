@@ -1,3 +1,4 @@
+import json
 import typing as t
 
 from backup_me.destinations import DESTINATIONS, BaseDestination
@@ -29,3 +30,9 @@ class Config:
                 raise ValueError("Invalid destination type")
             dest = dest_klass(**raw_dest)
             self.destinations.append(dest)
+
+    @classmethod
+    def from_file(cls, file_path: str) -> "Config":
+        with open(file_path, "r") as f:
+            config = json.load(f)
+        return cls(config)

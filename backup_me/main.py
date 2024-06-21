@@ -1,5 +1,3 @@
-import json
-
 import typer
 
 from backup_me.backup import Backup
@@ -7,9 +5,7 @@ from backup_me.config import Config
 
 
 def main(config_file: str):
-    with open(config_file) as f:
-        config = Config(json.load(f))
-
+    config = Config.from_file(config_file)
     backup = Backup(config)
     backup.run()
 
