@@ -1,12 +1,10 @@
 import typer
 
 from backup_me.backup import Backup
-from backup_me.config import Config
 
 
 def main(config_file: str):
-    config = Config.from_file(config_file)
-    backup = Backup(config)
+    backup = Backup(config_file=config_file)
     backup.run()
 
 

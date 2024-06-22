@@ -7,7 +7,11 @@ from backup_me.sources import ArchiveType, RawFiles
 class Backup:
     config: Config
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config = None, config_file: str = None) -> None:
+        if not config and not config_file:
+            raise ValueError("Either config or config_file must be provided")
+        if config_file and not config:
+            config = Config.from_file(config_file)
         self.config = config
 
     def run(self) -> None:
