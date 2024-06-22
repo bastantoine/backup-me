@@ -12,6 +12,5 @@ ADD backup_me/ backup_me/
 RUN poetry install
 
 WORKDIR /
-COPY docker-entrypoint.sh .
 
 ENTRYPOINT ["backup-me"]
