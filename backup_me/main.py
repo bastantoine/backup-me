@@ -8,5 +8,9 @@ def main(config_file: str):
     backup.run()
 
 
+def console():
+    typer.run(main)
+
+
 if __name__ == "__main__":
     typer.run(main)
