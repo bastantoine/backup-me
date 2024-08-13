@@ -54,31 +54,34 @@ def test_mysql_source(tmp_path, fake_process, mocker):
     mock_date.now.return_value = now
 
     backup_filename = "backup"
-
-    mysql_source = MySQLDB(
-        backup_filename=backup_filename,
-        host="localhost",
-        database="db",
-        username="username",
-        password="password",
-    )
+    args = {
+        "backup_filename": backup_filename,
+        "name": "db",
+        "host": "localhost",
+        "username": "username",
+        "password": "password",
+    }
+    mysql_source = MySQLDB(database="db", **args)
     filename = f"{os.path.join(tmp_path, backup_filename)}_{mysql_source.now()}.sql"
-    cmd = f"mysqldump --host=localhost --port=3306 --user=username --password=password db > {filename}"
+    cmd = f"mysqldump --host={args['host']} --port=3306 --user={args['username']} --password={args['password']} db > {filename}"
     fake_process.register(cmd, stdout="")
     backup = mysql_source.backup(tmp_path)
     assert backup == filename
+    assert fake_process.call_count(cmd) == 1
 
-    mysql_source = MySQLDB(
-        backup_filename=backup_filename,
-        host="localhost",
-        username="username",
-        password="password",
-        all_databases=True,
-    )
-    cmd = f"mysqldump --host=localhost --port=3306 --user=username --password=password --all-databases > {filename}"
+    mysql_source = MySQLDB(all_databases=True, **args)
+    cmd = f"mysqldump --host={args['host']} --port=3306 --user={args['username']} --password={args['password']} --all-databases > {filename}"
     fake_process.register(cmd, stdout="")
     backup = mysql_source.backup(tmp_path)
     assert backup == filename
+    assert fake_process.call_count(cmd) == 1
+
+    os.environ["MYSQL_DB_USERNAME"] = args.pop("username")
+    os.environ["MYSQL_DB_PASSWORD"] = args.pop("password")
+    mysql_source = MySQLDB(all_databases=True, **args)
+    fake_process.register(cmd, stdout="")
+    backup = mysql_source.backup(tmp_path)
+    assert fake_process.call_count(cmd) == 2
 
 
 def test_postgres_source(tmp_path, fake_process, mocker):
@@ -87,29 +90,32 @@ def test_postgres_source(tmp_path, fake_process, mocker):
     mock_date.now.return_value = now
 
     backup_filename = "backup"
-
-    postgres_source = PostgresDB(
-        backup_filename=backup_filename,
-        host="localhost",
-        database="db",
-        username="username",
-        password="password",
-    )
+    args = {
+        "backup_filename": backup_filename,
+        "name": "db",
+        "host": "localhost",
+        "username": "username",
+        "password": "password",
+    }
+    postgres_source = PostgresDB(database="db", **args)
     filename = f"{os.path.join(tmp_path, backup_filename)}_{postgres_source.now()}.sql"
     cmd = f"pg_dump --host=localhost --port=5432 --username=username db > {filename}"
     fake_process.register(cmd, stdout="")
     backup = postgres_source.backup(tmp_path)
     assert backup == filename
+    assert fake_process.call_count(cmd) == 1
 
-    postgres_source = PostgresDB(
-        backup_filename=backup_filename,
-        host="localhost",
-        username="username",
-        password="password",
-        all_databases=True,
-    )
+    postgres_source = PostgresDB(all_databases=True, **args)
     filename = f"{os.path.join(tmp_path, backup_filename)}_{postgres_source.now()}.sql"
     cmd = f"pg_dumpall --host=localhost --port=5432 --username=username  > {filename}"
     fake_process.register(cmd, stdout="")
     backup = postgres_source.backup(tmp_path)
     assert backup == filename
+    assert fake_process.call_count(cmd) == 1
+
+    os.environ["PG_DB_USERNAME"] = args.pop("username")
+    os.environ["PG_DB_PASSWORD"] = args.pop("password")
+    postgres_source = PostgresDB(all_databases=True, **args)
+    fake_process.register(cmd, stdout="")
+    backup = postgres_source.backup(tmp_path)
+    assert fake_process.call_count(cmd) == 2

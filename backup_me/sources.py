@@ -18,6 +18,7 @@ class SourceTypes(str, Enum):
 
 class BaseSource(BaseModel):
     backup_filename: str
+    name: str
 
     def backup(self, dir: str) -> str:
         raise NotImplementedError
@@ -45,6 +46,14 @@ class MySQLDB(DBSource):
     port: int = 3306
     mysql_dump_bin: str = "mysqldump"
 
+    def __init__(self, **data):
+        name = data.get("name").upper().replace(" ", "_")
+        if not data.get("username"):
+            data["username"] = os.getenv(f"MYSQL_{name}_USERNAME")
+        if not data.get("password"):
+            data["password"] = os.getenv(f"MYSQL_{name}_PASSWORD")
+        super().__init__(**data)
+
     def backup(self, dir: str) -> str:
         if self.all_databases:
             database = "--all-databases"
@@ -67,6 +76,14 @@ class PostgresDB(DBSource):
     port: int = 5432
     pg_dump_bin: str = "pg_dump"
     pg_dumpall_bin: str = "pg_dumpall"
+
+    def __init__(self, **data):
+        name = data.get("name").upper().replace(" ", "_")
+        if not data.get("username"):
+            data["username"] = os.getenv(f"PG_{name}_USERNAME")
+        if not data.get("password"):
+            data["password"] = os.getenv(f"PG_{name}_PASSWORD")
+        super().__init__(**data)
 
     def backup(self, dir: str) -> str:
         if self.all_databases:
