@@ -31,6 +31,7 @@ def test_valid_config():
         "sources": [
             {
                 "type": "files",
+                "name": "files_src",
                 "backup_filename": "config",
                 "files": ["file1", "file2"],
             },
@@ -53,6 +54,7 @@ def test_valid_config():
     files_src = RawFiles(
         backup_filename="config",
         files=["file1", "file2"],
+        name="files_src",
     )
     assert config.sources[0] == files_src
 

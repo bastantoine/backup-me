@@ -14,14 +14,16 @@ def test_rawfiles_source(tmp_path):
         f.write("content")
         f.flush()
 
-    # No archive_type provided => default to tar
-    files_src = RawFiles(
-        backup_filename="backup",
-        files=[
+    args = {
+        "backup_filename": "backup",
+        "name": "files_src",
+        "files": [
             str(tmp_path / "file1.txt"),
             str(tmp_path / "file2.txt"),
         ],
-    )
+    }
+    # No archive_type provided => default to tar
+    files_src = RawFiles(**args)
     backup = files_src.backup(tmp_path)
     assert backup.endswith(".tar")
     with tarfile.TarFile(backup) as archive:
@@ -31,14 +33,7 @@ def test_rawfiles_source(tmp_path):
             assert os.path.basename(file) in content
 
     # Try with zip archive
-    files_src = RawFiles(
-        backup_filename="backup",
-        files=[
-            str(tmp_path / "file1.txt"),
-            str(tmp_path / "file2.txt"),
-        ],
-        archive_type=ArchiveType.zip,
-    )
+    files_src = RawFiles(**args, archive_type=ArchiveType.zip)
     backup = files_src.backup(tmp_path)
     assert backup.endswith(".zip")
     with zipfile.ZipFile(backup) as archive:
