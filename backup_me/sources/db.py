@@ -1,30 +1,10 @@
 import os
 import subprocess
-import tarfile
 import tempfile
-import typing as t
-import zipfile
-from datetime import datetime
-from enum import Enum
 
-from pydantic import BaseModel, model_validator
+from pydantic import model_validator
 
-
-class SourceTypes(str, Enum):
-    mysql = "mysql"
-    postgres = "postgres"
-    files = "files"
-
-
-class BaseSource(BaseModel):
-    backup_filename: str
-    name: str
-
-    def backup(self, dir: str) -> str:
-        raise NotImplementedError
-
-    def now(self) -> str:
-        return datetime.now().isoformat()
+from .base import BaseSource
 
 
 class DBSource(BaseSource):
@@ -120,40 +100,3 @@ class PostgresDB(DBSource):
             print(f"Database backup failed with return code {process.returncode}.")
 
         return backup_filename
-
-
-class ArchiveType(str, Enum):
-    zip = "zip"
-    tar = "tar"
-
-
-class RawFiles(BaseSource):
-    files: t.List[str]
-    archive_type: ArchiveType = ArchiveType.tar
-
-    def backup(self, dir: str) -> str:
-        backup_filename = f"{os.path.join(dir, self.backup_filename)}_{self.now()}.{self.archive_type.value}"
-
-        # We can't use the shutil.make_archive function here, as this allows to archive only whole
-        # folder, and not single files. We could copy all the files in a temp folder and then
-        # archive this folder, but that my be a bit overkill.
-
-        if self.archive_type == ArchiveType.tar:
-            mode = "w"
-            with tarfile.TarFile(backup_filename, mode) as archive:
-                for file in self.files:
-                    archive.add(os.path.expanduser(file))
-
-        elif self.archive_type == ArchiveType.zip:
-            with zipfile.ZipFile(backup_filename, "w") as archive:
-                for file in self.files:
-                    archive.write(os.path.expanduser(file))
-
-        return backup_filename
-
-
-SOURCES: t.Dict[SourceTypes, BaseSource] = {
-    SourceTypes.mysql: MySQLDB,
-    SourceTypes.postgres: PostgresDB,
-    SourceTypes.files: RawFiles,
-}

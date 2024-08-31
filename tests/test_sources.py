@@ -45,7 +45,7 @@ def test_rawfiles_source(tmp_path):
 
 def test_mysql_source(tmp_path, fake_process, mocker):
     now = datetime.now()
-    mock_date = mocker.patch("backup_me.sources.datetime")
+    mock_date = mocker.patch("backup_me.sources.base.datetime")
     mock_date.now.return_value = now
 
     backup_filename = "backup"
@@ -81,7 +81,7 @@ def test_mysql_source(tmp_path, fake_process, mocker):
 
 def test_postgres_source(tmp_path, fake_process, mocker):
     now = datetime.now()
-    mock_date = mocker.patch("backup_me.sources.datetime")
+    mock_date = mocker.patch("backup_me.sources.base.datetime")
     mock_date.now.return_value = now
 
     backup_filename = "backup"
