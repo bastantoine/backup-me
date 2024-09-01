@@ -18,7 +18,7 @@ class Backup:
         with tempfile.TemporaryDirectory() as temp_dir:
             backup_files = []
             for src in self.config.sources:
-                res = src.backup(temp_dir)
+                res = src.backup(output_dir=temp_dir)
                 backup_files.append(res)
 
             raw_files_src = RawFiles(

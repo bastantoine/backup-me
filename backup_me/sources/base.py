@@ -7,7 +7,7 @@ class BaseSource(BaseModel):
     backup_filename: str
     name: str
 
-    def backup(self, dir: str) -> str:
+    def backup(self, output_dir: str) -> str:
         raise NotImplementedError
 
     def now(self) -> str:

@@ -34,13 +34,15 @@ class MySQLDB(DBSource):
             data["password"] = os.getenv(f"MYSQL_{name}_PASSWORD")
         super().__init__(**data)
 
-    def backup(self, dir: str) -> str:
+    def backup(self, output_dir: str) -> str:
         if self.all_databases:
             database = "--all-databases"
         else:
             database = self.database
 
-        backup_filename = f"{os.path.join(dir, self.backup_filename)}_{self.now()}.sql"
+        backup_filename = (
+            f"{os.path.join(output_dir, self.backup_filename)}_{self.now()}.sql"
+        )
         command = f"{self.mysql_dump_bin} --host={self.host} --port={self.port} --user={self.username} --password={self.password} {database} > {backup_filename}"
         process = subprocess.run(command, shell=True)
 
@@ -65,7 +67,7 @@ class PostgresDB(DBSource):
             data["password"] = os.getenv(f"PG_{name}_PASSWORD")
         super().__init__(**data)
 
-    def backup(self, dir: str) -> str:
+    def backup(self, output_dir: str) -> str:
         if self.all_databases:
             bin = self.pg_dumpall_bin
             database_option = ""
@@ -89,7 +91,7 @@ class PostgresDB(DBSource):
             env["PGPASSFILE"] = temp_pgpassfile.name
 
             backup_filename = (
-                f"{os.path.join(dir, self.backup_filename)}_{self.now()}.sql"
+                f"{os.path.join(output_dir, self.backup_filename)}_{self.now()}.sql"
             )
             command = f"{bin} --host={self.host} --port={self.port} --username={self.username} {database_option} > {backup_filename}"
             process = subprocess.run(command, shell=True, env=env)
