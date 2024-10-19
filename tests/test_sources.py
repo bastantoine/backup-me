@@ -1,9 +1,12 @@
+import json
 import os
 import tarfile
 import zipfile
 from datetime import datetime
 
-from backup_me.sources import ArchiveType, MySQLDB, PostgresDB, RawFiles
+import pytest
+
+from backup_me.sources import HTTP, ArchiveType, MySQLDB, PostgresDB, RawFiles
 
 
 def test_rawfiles_source(tmp_path):
@@ -114,3 +117,52 @@ def test_postgres_source(tmp_path, fake_process, mocker):
     fake_process.register(cmd, stdout="")
     backup = postgres_source.backup(tmp_path)
     assert fake_process.call_count(cmd) == 2
+
+
+@pytest.mark.parametrize(
+    "status,json_body,text_body",
+    [
+        (200, {"status": "OK", "msg": "Success"}, ""),
+        (200, {}, "Sucess"),
+        (500, {"status": "KO", "msg": "Error"}, ""),
+        (500, {}, "Error"),
+    ],
+)
+def test_http_source(status, json_body, text_body, tmp_path, requests_mock, mocker):
+    now = datetime.now()
+    mock_date = mocker.patch("backup_me.sources.base.datetime")
+    mock_date.now.return_value = now
+
+    url = "https://backup.me"
+    args = {"status_code": status}
+    if json_body:
+        args["json"] = json_body
+        args["headers"] = {"Content-Type": "application/json"}
+    else:
+        args["text"] = text_body
+    requests_mock.post(url, **args)
+
+    backup_filename = "backup"
+    source = HTTP(
+        backup_filename=backup_filename,
+        name="http",
+        url=url,
+        method="POST",
+        request_params={"headers": {"Authorization": "Bearer XYZ"}},
+    )
+    filename = f"{os.path.join(tmp_path, backup_filename)}_{source.now()}.json"
+    backup = source.backup(tmp_path)
+    assert backup == filename
+    with open(backup) as f:
+        result = json.load(f)
+    expected = {
+        "url": url,
+        "timestamp": source.now(),
+        "result": status,
+    }
+    if json_body:
+        expected["detail"] = json_body
+    else:
+        expected["msg"] = text_body
+
+    assert result == expected

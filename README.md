@@ -150,6 +150,45 @@ If a param is provided both in the config file and in the environement, the valu
 > [!TIP]
 > The paths in `files` can either be absolute, relative to the current user homedir, or relative the current working directory.
 
+#### HTTP call
+
+```json
+{
+    "type": "http",
+    "name": "http",
+    "url": "https://httpbin.org/json",
+    "method": "GET",
+    "request_params": {
+        "headers": {
+            "Authorization": "Bearer THIS_IS_A_TOKEN"
+        }
+    }
+}
+```
+
+| Key               | Description                                      | Required | Default value |
+| ----------------- | ------------------------------------------------ | -------- | ------------- |
+| `type`            | Type of source                                   | Yes      | `"http"`      |
+| `name`            | Name of source                                   | Yes      |               |
+| `url`             | URL to call                                      | Yes      |               |
+| `method`          | HTTP method to use to do the API call            | Yes      |               |
+| `request_params`  | Any extra param required for the call.           | No       |               |
+
+> [!TIP]
+> The `request_params` is provided as kwargs to the [`requests.request`](https://requests.readthedocs.io/en/latest/api/#requests.request). Check out the documentation to see which parameter is available.
+
+> [!TIP]
+> The archive created after the backup is a JSON with the following format:
+> ```json
+> {
+>     "url": "<the URL called>",
+>     "timestamp": "<backup timestamp>",
+>     "result": "<API call status code>",
+>     "detail": "<API response when JSON>",
+>     "msg": "<API response body when not JSON>"
+> }
+> ```
+
 ### Available destinations
 
 #### S3
