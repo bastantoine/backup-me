@@ -2,7 +2,7 @@ import typing as t
 from enum import Enum
 
 from .base import BaseSource
-from .db import MySQLDB, PostgresDB
+from .db import DBSource, MySQLDB, PostgresDB
 from .files import ArchiveType, RawFiles
 from .http import HTTP
 
@@ -29,4 +29,5 @@ __all__ = [
     "MySQLDB",
     "PostgresDB",
     "HTTP",
+    "DBSource",
 ]
