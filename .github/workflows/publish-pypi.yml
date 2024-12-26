@@ -49,7 +49,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: ${{ env.PYPI_URL }}/legacy/
-          verbose: true
+          verbose: false
 
   # github-release:
   #   name: >-
