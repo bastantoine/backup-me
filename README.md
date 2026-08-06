@@ -65,22 +65,22 @@ If a param is provided both in the config file and in the environement, the valu
     "password": "password",
     "database": "--all-databases",
     "all_databases": true,
-    "mysql_dump_bin": "/usr/local/opt/mysql-client/bin/mysqldump"
+    "mysql_dump_bin": "/usr/bin/mysqldump"
 }
 ```
 
-| Key               | Description                                           | Required | Default value                                 | Sensitive |
-| ----------------- | ----------------------------------------------------- | -------- | --------------------------------------------- | --------- |
-| `type`            | Type of source                                        | Yes      | `"mysql"`                                     | No        |
-| `name`            | Name of source                                        | Yes      |                                               | No        |
-| `backup_filename` | Name of the backup file generated                     | Yes      |                                               | No        |
-| `host`            | Hostname of the MySQL server                          | Yes      |                                               | No        |
-| `port`            | Port to connect to the server                         | No       | 3306                                          | No        |
-| `username`        | Username to connect to the server                     | Yes      |                                               | Yes       |
-| `password`        | Password to connect to the server                     | Yes      |                                               | Yes       |
-| `database`        | Name of the database to backup                        | No*      |                                               | No        |
-| `all_databases`   | Whether to backup all databases of the server         | No*      | False                                         | No        |
-| `mysql_dump_bin`  | Path to the `mysql_dump_bin` tool used for the backup | No       | `"/usr/local/opt/mysql-client/bin/mysqldump"` | No        |
+| Key               | Description                                           | Required | Default value          | Sensitive |
+| ----------------- | ----------------------------------------------------- | -------- | ---------------------- | --------- |
+| `type`            | Type of source                                        | Yes      | `"mysql"`              | No        |
+| `name`            | Name of source                                        | Yes      |                        | No        |
+| `backup_filename` | Name of the backup file generated                     | Yes      |                        | No        |
+| `host`            | Hostname of the MySQL server                          | Yes      |                        | No        |
+| `port`            | Port to connect to the server                         | No       | 3306                   | No        |
+| `username`        | Username to connect to the server                     | Yes      |                        | Yes       |
+| `password`        | Password to connect to the server                     | Yes      |                        | Yes       |
+| `database`        | Name of the database to backup                        | No*      |                        | No        |
+| `all_databases`   | Whether to backup all databases of the server         | No*      | False                  | No        |
+| `mysql_dump_bin`  | Path to the `mysql_dump_bin` tool used for the backup | No       | `"/usr/bin/mysqldump"` | No        |
 
 > [!TIP]
 > The `database` and `all_databases` parameters are mutually exclusive. One of them must be provided at all time. Config validation will fail if none are provided. If both are provided at the same time `all_databases` will have precedence.
