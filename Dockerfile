@@ -36,3 +36,12 @@ COPY --from=builder /venv /venv
 ENV PATH="/venv/bin:$PATH"
 
 CMD ["backup-me"]
+
+FROM python:3-slim AS default-runtime
+
+WORKDIR /app
+
+COPY --from=builder /venv /venv
+ENV PATH="/venv/bin:$PATH"
+
+CMD ["backup-me"]
