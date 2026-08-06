@@ -7,7 +7,7 @@ requires-python = ">=3.14"
 dependencies = ["boto3", "typer[all]", "pydantic", "requests"]
 
 [project.optional-dependencies]
-gui = [
+tests = [
     "pytest",
     "coverage",
     "pytest-subprocess",
