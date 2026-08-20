@@ -2,9 +2,8 @@ name: Docker build
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
+  release:
+    types: [published]
 
 jobs:
   docker:
@@ -22,27 +21,36 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Define tag
-        id: define_tag
         run: |
-          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+          # Either branch name or tag name,
+          # replacing '/' by '-' to avoid issues with docker tags
+          echo "TAG=${GITHUB_REF_NAME/\//-}" >> $GITHUB_ENV
+
+          MYSQL_IMAGE=ghcr.io/bastantoine/backup-me:mysql-${TAG}
+          POSTGRESQL_IMAGE=ghcr.io/bastantoine/backup-me:postgresql-${TAG}
+          DEFAULT_IMAGE=ghcr.io/bastantoine/backup-me:${TAG}
+
+          # If this is a release, we want to tag the images as 'latest' as well
+          if [[ "${{ github.event_name }}" == "release" ]]; then
             echo "TAG=latest" >> $GITHUB_ENV
-          else
-            # Replace slashes with dashes for branch
-            # names to create a valid Docker tag
-            echo "TAG=${GITHUB_REF_NAME/\//-}" >> $GITHUB_ENV
           fi
+
+          echo "MYSQL_IMAGE=$MYSQL_IMAGE" >> $GITHUB_ENV
+          echo "POSTGRESQL_IMAGE=$POSTGRESQL_IMAGE" >> $GITHUB_ENV
+          echo "DEFAULT_IMAGE=$DEFAULT_IMAGE" >> $GITHUB_ENV
+
       - name: Build and push mysql target
         uses: docker/build-push-action@v6
         with:
-          tags: ghcr.io/bastantoine/backup-me:mysql-${{ env.TAG }}
+          tags: ${{ env.MYSQL_IMAGE }}
           target: mysql-runtime
       - name: Build and push postgresql target
         uses: docker/build-push-action@v6
         with:
-          tags: ghcr.io/bastantoine/backup-me:postgresql-${{ env.TAG }}
+          tags: ${{ env.POSTGRESQL_IMAGE }}
           target: postgresql-runtime
       - name: Build and push default target
         uses: docker/build-push-action@v6
         with:
-          tags: ghcr.io/bastantoine/backup-me:${{ env.TAG }}
+          tags: ${{ env.DEFAULT_IMAGE }}
           target: default-runtime
