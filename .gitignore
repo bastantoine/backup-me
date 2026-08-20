@@ -2,3 +2,5 @@
 .vscode/*
 .coverage
 config.json
+build/
+*.egg-info

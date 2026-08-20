@@ -1,0 +1,17 @@
+# Project
+venv/
+__pycache__/
+*.pyc
+build/
+*.egg-info/
+tests/
+.pytest_cache/
+config.json
+LICENSE
+README.md
+
+# Git and IDE
+.git/
+.gitignore
+.vscode/
+.github/

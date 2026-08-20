@@ -2,18 +2,58 @@ name: Docker build
 
 on:
   pull_request:
-  push:
+  release:
+    types: [published]
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      mysql_image: ${{ steps.define-tag.outputs.mysql_image }}
+      postgresql_image: ${{ steps.define-tag.outputs.postgresql_image }}
+      default_image: ${{ steps.define-tag.outputs.default_image }}
+    steps:
+      - name: Define tag
+        id: define-tag
+        run: |
+          BASE_IMAGE='ghcr.io/bastantoine/backup-me'
+          # Either branch name or tag name,
+          # replacing '/' by '-' to avoid issues with docker tags
+          TAG=${GITHUB_REF_NAME/\//-}
+
+          MYSQL_IMAGE=${BASE_IMAGE}:mysql-${TAG}
+          POSTGRESQL_IMAGE=${BASE_IMAGE}:postgresql-${TAG}
+          DEFAULT_IMAGE=${BASE_IMAGE}:${TAG}
+
+          # If this is a release, we want to tag the images as 'latest' as well
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            MYSQL_IMAGE=${MYSQL_IMAGE},${BASE_IMAGE}:mysql-lastest
+            POSTGRESQL_IMAGE=${POSTGRESQL_IMAGE},${BASE_IMAGE}:postgresql-lastest
+            DEFAULT_IMAGE=${DEFAULT_IMAGE},${BASE_IMAGE}:lastest
+          fi
+
+          echo "mysql_image=$MYSQL_IMAGE" >> $GITHUB_OUTPUT
+          echo "postgresql_image=$POSTGRESQL_IMAGE" >> $GITHUB_OUTPUT
+          echo "default_image=$DEFAULT_IMAGE" >> $GITHUB_OUTPUT
+
   docker:
     runs-on: ubuntu-latest
     permissions:
       packages: write
+    needs: prepare
+    strategy:
+      matrix:
+        include:
+          - target: mysql-runtime
+            tags: ${{ needs.prepare.outputs.mysql_image }}
+          - target: postgresql-runtime
+            tags: ${{ needs.prepare.outputs.postgresql_image }}
+          - target: default-runtime
+            tags: ${{ needs.prepare.outputs.default_image }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Login to GHCR
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -22,5 +62,5 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/bastantoine/backup-me:latest
+          tags: ${{ matrix.tags }}
+          target: ${{ matrix.target }}
