@@ -27,7 +27,9 @@ jobs:
           if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "TAG=latest" >> $GITHUB_ENV
           else
-            echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+            # Replace slashes with dashes for branch
+            # names to create a valid Docker tag
+            echo "TAG=${GITHUB_REF_NAME/\//-}" >> $GITHUB_ENV
           fi
       - name: Build and push mysql target
         uses: docker/build-push-action@v6
