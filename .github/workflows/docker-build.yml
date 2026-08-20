@@ -19,7 +19,7 @@ jobs:
           BASE_IMAGE='ghcr.io/bastantoine/backup-me'
           # Either branch name or tag name,
           # replacing '/' by '-' to avoid issues with docker tags
-          echo "TAG=${GITHUB_REF_NAME/\//-}"
+          TAG=${GITHUB_REF_NAME/\//-}
 
           MYSQL_IMAGE=${BASE_IMAGE}:mysql-${TAG}
           POSTGRESQL_IMAGE=${BASE_IMAGE}:postgresql-${TAG}
