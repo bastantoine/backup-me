@@ -21,21 +21,29 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Define tag
+        id: define_tag
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "TAG=latest" >> $GITHUB_ENV
+          else
+            echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          fi
       - name: Build and push mysql target
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/bastantoine/backup-me:mysql-latest
+          tags: ghcr.io/bastantoine/backup-me:mysql-${{ env.TAG }}
           target: mysql-runtime
       - name: Build and push postgresql target
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/bastantoine/backup-me:postgresql-latest
+          tags: ghcr.io/bastantoine/backup-me:postgresql-${{ env.TAG }}
           target: postgresql-runtime
       - name: Build and push default target
         uses: docker/build-push-action@v6
         with:
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/bastantoine/backup-me:latest
+          tags: ghcr.io/bastantoine/backup-me:${{ env.TAG }}
           target: default-runtime
