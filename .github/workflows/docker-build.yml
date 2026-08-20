@@ -34,18 +34,15 @@ jobs:
       - name: Build and push mysql target
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name != 'pull_request' }}
           tags: ghcr.io/bastantoine/backup-me:mysql-${{ env.TAG }}
           target: mysql-runtime
       - name: Build and push postgresql target
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name != 'pull_request' }}
           tags: ghcr.io/bastantoine/backup-me:postgresql-${{ env.TAG }}
           target: postgresql-runtime
       - name: Build and push default target
         uses: docker/build-push-action@v6
         with:
-          push: ${{ github.event_name != 'pull_request' }}
           tags: ghcr.io/bastantoine/backup-me:${{ env.TAG }}
           target: default-runtime
